@@ -1,0 +1,892 @@
+#+TITLE: Radicle Audit Report:
+#+SUBTITLE: Governance and Registrar
+#+DATE: 18.02.2021
+#+AUTHOR: dapp.org
+#+EMAIL: fv@dapp.org.uk
+#+OPTIONS: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline
+#+OPTIONS: author:t c:nil creator:comment d:(not "LOGBOOK") date:t
+#+OPTIONS: e:t email:t f:t inline:t num:t p:nil pri:nil stat:t
+#+OPTIONS: tags:t tasks:t tex:t timestamp:t toc:3 todo:t |:t
+#+OPTIONS: num:0 html-postamble:nil title:nil
+#+HTML_HEAD_EXTRA: <style> body { line-height: 1.6; font-size: 18px; padding: 0 10px;text-align: justify;text-justify: inter-word; margin: 60px auto; max-width: 800px; } h2,h2,h3{line-height:1.2} a:link { color: #0466c8; } a:visited { color: #0466c8; } code, .code { font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 1.125rem; line-height: 1.6; padding: 0; padding-top: 0; padding-bottom: 0; margin: 0; font-size: 85%; background-color: rgba(0,0,0,0.04); border-radius: 3px; } h2 { border-bottom: 3px solid #444; } h3 { text-decoration: underline; } h4 { font-style: italic } table { width: 100% } .src,.example {background: #292929; color: #fafafa; font-size: 16px; padding: 0; padding: 10px;} img { width: 100% } blockquote {margin: 20px; padding: 20px; border-left: 2px solid; font-style: italic }</style>
+#+DESCRIPTION:
+#+EXCLUDE_TAGS: noexport
+#+KEYWORDS:
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+LATEX_HEADER: \usepackage[a4paper]{anysize}
+#+LATEX_HEADER: \usepackage[margin=2cm]{geometry}
+
+#+BEGIN_SRC emacs-lisp :exports none :results none
+  (setq org-html-preamble-format
+  '(("en"
+     "<h1 class=\"title\">%t</h1>
+    <h1 class=\"subtitle\">%s</h1>
+      <p class=\"subtitle\"><i>%a</i></p>
+      <p class=\"subtitle\">%e</p>
+      <p class=\"subtitle\">%d </p><br></br>")))
+#+END_SRC
+
+* Summary
+
+From January 27th to February 11th, a team of four engineers spent a total
+of 10 person weeks reviewing the smart contracts for the Radicle token and
+governance system, as well as the name registration contracts.
+
+This work was carried out against the following git repository:
+
+- [[https://github.com/radicle-dev/radicle-contracts][=radicle-dev/radicle-contracts=]] at =2c45833457eb4ea184d3b8f93230988817917355=
+
+** Scope
+
+The team reviewed the following contracts:
+
+- [[https://github.com/radicle-dev/radicle-contracts/blob/2c45833457eb4ea184d3b8f93230988817917355/contracts/Governance/RadicleToken.sol][RadicleToken.sol]]: The protocol token, a lightly modified fork of COMP
+- [[https://github.com/radicle-dev/radicle-contracts/blob/2c45833457eb4ea184d3b8f93230988817917355/contracts/Governance/Governor.sol][Governor.sol]]: The voting contract, forked from Compound
+- [[https://github.com/radicle-dev/radicle-contracts/blob/2c45833457eb4ea184d3b8f93230988817917355/contracts/Governance/Timelock.sol][TimeLock.sol]]: A governance timelock, again forked from Compound
+- [[https://github.com/radicle-dev/radicle-contracts/blob/2c45833457eb4ea184d3b8f93230988817917355/contracts/Governance/Treasury.sol][Treasury.sol]]: A simple ETH only treasury contract
+- [[https://github.com/radicle-dev/radicle-contracts/blob/2c45833457eb4ea184d3b8f93230988817917355/contracts/Governance/VestingToken.sol][VestingToken.sol]]: A contract for enforcing vesting schedules
+- [[https://github.com/radicle-dev/radicle-contracts/blob/2c45833457eb4ea184d3b8f93230988817917355/contracts/Registrar.sol][Registrar.sol]]: A ENS name registrar for the ~radicle.eth~ subdomain
+
+** Tests
+
+To facilitate the analysis, the team implemented a suite of integration and
+property tests using the [[https://github.com/dapphub/dapptools][dapptools]] toolbox, which can be found at
+[[https://github.com/dapp-org/radicle-contracts-tests][dapp-org/radicle-contracts-tests]].
+
+This includes demonstrations of most of the vulnerabilities described in this document.
+
+** Team
+
+The review was carried out by the following members of the [[http://dapp.org][dapp.org]] collective:
+
+- David Terry
+- Jenny Pollack
+- Martin Lundfall
+- Rain
+
+** Changelog
+
+A revision history for this document can be found [[https://github.com/dapp-org/radicle-contracts-report/commits/main][here]].
+
+* Design Analysis
+
+The ~Registrar~ is the largest novel component and we review the design in
+depth here.
+
+Several components are based on source code from Compound: ~Timelock~, ~Governor~,
+and ~RadicleToken~. Here we review the source code differences contract by
+contract, based on the deployed Compound ~Timelock~, ~GovernorAlpha~ and ~COMP~
+contracts, and the modified versions of these contracts in the ~radicle-contracts~
+repository. Overall, the substantive differences are small and this system is a
+faithful implementation of "Compound Governance".
+
+The analysis in this section is performmed against the updated ~radicle-contracts~
+code at ~920dcd3~ (which includes fixes to most of the issues detailed in the
+[[Findings]] section of this report).
+
+We omit the ~Treasury~ from this section, as it was deprecated following this
+review, and also omit the ~VestingToken~ as it is simple and not public facing.
+
+** Registrar
+
+The Registrar is securing an ownership right over the ~radicle.eth~ ens name. It
+additionally operates an automated subdomain registration scheme, where anyone
+can register a (valid) subdomain under ~radicle.eth~ by burning a predetermined
+amount of rad tokens.
+
+The Registrar is collectively owned and controlled by the radicle token
+holders. This ownership gives radicle governance certain powers:
+
+- Ownership transferal for the ~radicle.eth~ ens name
+- Configuration of ENS specific values for ~radicle.eth~ (~ttl~ and ~resolver~ values)
+- Configuration of the registration fee (denominated in rad)
+- Configuration of the minimum delay between committing to a name and registering that name
+
+Note that although the Registrar contract as written does not allow radicle
+governance to make direct modifications to ~radicle.eth~ subdomains, the power to
+transfer ownership of the ~radicle.eth~ domain does indirectly allow radicle
+governance to take control of every subdomain registered under ~radicle.eth~. Due
+to the hierarchical nature of the ENS system, the signers on the ENS root
+multisig also have this power.
+
+*** Name Registration & Transaction Reordering
+
+In order to provide robust protections against transaction reordering attacks, a
+commit reveal scheme is used for name registration. In this scheme, registrants
+must first submit a commitment to their desired name (the hash of the tuple
+~(name, owner, salt)~). Once a predetermined number of blocks have passed, the
+registrant can reveal the preimage to the commitment and register the ~name~ to
+the desired ~owner~.
+
+A frontrunner can frontrun both a commitment tx and an registration tx. There
+are four ways to commit to a name (see below), and only one way to register. We
+analyse each in turn. In all cases below, we note that knowledge of the commitment
+does not bestow knowledge of the domain in the preimage, meaning that a
+frontrunner is not able to submit a competing commitment tx for the same name
+but with a different owner.
+
+**** ~commit~
+
+The frontrunner knows the commitment.
+
+They can also make a call to ~commit~ ahead of the original caller with
+the same commitment, but since the ~owner~ of the domain is part of the
+commitment, the front runner will simply end up paying the registration fee on
+behalf of the original caller.
+
+**** ~commitWithPermit~
+
+The frontrunner knows:
+
+1. the commitment
+2. the contents of the signed ~permit~ message
+
+They can make a call to ~commitWithPermit~ with a different commitment but the
+same ~permit~ message, but since the caller of ~commitWithPermit~ pays the
+registration fee, this is equivalent to simply registering a different domain
+for themselves.
+
+As above, the frontrunner can submit the same call but from their address, with
+the same effect of paying the registration fee on behalf of the original registrant.
+
+**** ~commitWithSig~
+
+The frontrunner knows:
+
+1. the commitment
+2. the contents of the signed ~commit~ message
+
+All parameters to the call are either signed, or signatures, and so cannot be
+modified in any way by a frontrunner.
+
+The frontrunner can frontrun the relayer, claiming the ~submissionFee~ for
+themselves. Although this is undesirable for relay operators, it is not obvious
+that this is detrimental to the user. Taken to an extreme, this vector results
+in miners running relay services for users, an outcome that is in fact rather
+beneficial for users.
+
+**** ~commitBySigWithPermit~
+
+The frontrunner knows:
+
+1. the commitment
+2. the contents of the ~commit~ message
+3. the contents of the ~permit~ message
+
+As above, a frontrunner can submit the same tx but from their address, claiming
+the ~submissionFee~ from the original relayer.
+
+The frontrunner can submit a tx with the same commitment, but with a different
+~permit~ message (or vice versa). In this case as the registration fee is taken
+from the signer of the ~commit~ message, they will likely simply cause the call to
+~revert~ (unless the signer of the ~commit~ message has granted infinite approval to
+the registrar).
+
+**** ~register~
+
+The frontrunner knows the preimage to the commitment.
+
+The frontrunner can submit the same call, but from their address. In this case
+they will simply pay the gas cost of the registration for the ~owner~ in the
+commitment preimage.
+
+The frontrunner can submit a commitment to the same name, but with themselves as
+the owner. In this case they will pay the registration fee, and must hope that
+the original call to ~register~ does not succeed before ~minCommitmentAge~ blocks
+have passed. Callers of ~register~ must therefore take care to submit their tx
+with a competitive gas price, to ensure that it is included in good time.
+
+*** Signature Based Name Registration
+
+Names can be registered by a relayer on behalf of a registrant using EIP-712
+signed messages. This allows for low-trust, zero transaction, gas free name
+registration (relayers can always censor, and depending on the workflow may be
+able to front-run or block domain registration).
+
+There are 3 signature based methods that can be used to commit to a name
+registration:
+
+- ~commitWithPermit~: allows callers to commit to name without first having to call ~approve~ on the radicle token
+- ~commitBySig~: allows a relayer to commit to a name on behalf of another party
+- ~commitBySigWithPermit~: allows a relayer to commit to a name on behalf of
+  another party without that party needing to first call ~approve~ on the radicle token
+
+The final method (~commitBySigWithPermit~) allows registrants to register a
+~radicle.eth~ subdomain by signing two EIP-712 messages:
+
+1. a ~permit~ message allowing the relayer to withdraw tokens from the registrants account
+2. a ~commitBySig~ message allowing the relayer to make a commitment on the registrants behalf
+
+If the relayer is trusted with the commitment preimage, they can also call
+~register~ on behalf on the registrant once the minimum commit/reveal delay has elapsed.
+
+*** Relayer Trust Assumptions
+
+The above methods allow a few different workflows, each differing in the
+trust assumptions made regarding the relayer and in the number of on chain
+transactions that must be submitted by the registrant:
+
+**** 2 tx: registrant commits & reveals
+
+In this variant, the registrant calls ~commitWithPermit~, followed by ~register~. No
+relayer is involved and the registrant must make no extra trust assumptions
+during name registration.
+
+**** 1 tx: relayer commits, registrant reveals
+
+Here, the registrant submits two signed messages to a relayer, a ~permit~ and a
+~commit~. The relayer calls ~commitBySigWithPermit~ and receives a fee in ~rad~ as
+compensation. The registrant waits ~minCommitmentAge~ blocks and calls ~register~
+with the commitment preimage.
+
+In this case, the relayer can censor the registrant by failing to submit the
+transaction. If they do so, they will not receive their payment. The registrant
+can always fallback to the 2 tx workflow.
+
+**** 0 tx: relayer commits & reveals
+
+Here, the registrant submits a signed ~permit~ and ~commit~ message to the relayer,
+as well as the preimage to the commitment. The relayer calls
+~commitBySigWithPermit~, waits ~minCommitmentAge~ blocks and calls ~register~ on
+behalf of the registrant with the commitment preimage. As currently implemented,
+the relayer has no incentive to call ~register~, making this a fully altruistic
+action (see [[Incentivize relaying of ~register~ transactions in the Registrar]]).
+
+In this case, the relayer can censor (as above), but can additionally choose to
+register the name for themselves (perhaps with the intention of charging the
+original registrant a high price to return the name). Note that should they do
+so, they will have to construct a new commitment and so will:
+
+1. not receive their submission fee
+2. have to pay the registration fee themselves
+
+*** Properties
+
+The following are human readable properties that should hold for all possible Registrar states.
+
+**** Top Domain Ownership & Control
+
+- Ownership of the ~radicle.eth~ domain can only be changed by the Registrar ~admin~ or parties with control over the ~.eth~ tld
+- Ownership of the ~radicle.eth~ domain can always be changed by the Registrar
+  (assuming that the registrar retains ownership of ~radicle.eth~, and that the owner of ~.eth~ allows the registrar to call ~transferFrom~ on it)
+- Transferring ownership of the ~radicle.eth~ domain also transfers ownership of the associated ERC-721 token in the ~.eth~ registry contract
+- Transferring ownership of the ~radicle.eth~ domain also transfers ownership of the commitment state
+
+**** Subdomain Ownership & Control
+
+- It is not possible to register a subdomain without burning ~registrationFeeRad~ RAD tokens
+- Once registered, the only parties that can modify the ownership, resolver, or
+  ttl of a subdomain are the current ~owner~, the ~admin~ of the Registrar contract, or parties with control over the ~.eth~ tld.
+- Subdomain owners can register an unlimited number of subdomains underneath their name (e.g. ~a.b.c.d.e.radicle.eth~)
+- Subdomains can be re-registered if their ownership is set to ~address(0)~
+- It is not possible to register a subdomain that has a UTF-8 encoded representation that is:
+    - less than 2 bytes in length
+    - greater than 128 bytes in length
+
+**** Front Running Resistance
+
+An attacker that is able to insert & reorder transactions cannot:
+
+- block domain registration
+- register pending domains for themselves
+- force another party to pay for the registration of an attacker controlled subdomain
+
+**** Commitment State
+
+- State in the ~Commitments~ contract can only be written by the Registrar
+
+**** End User Workflows
+
+- It is possible for end users to register a domain without having to submit a tx onchain or hold any ETH
+
+** Timelock
+
+The only substantive non syntactic differences with the Compound Timelock are:
+
+- solidity 0.5.8 -> 0.7.5
+- addition of a ~gracePeriod~ getter for the ~GRACE_PERIOD~ constant
+
+#+BEGIN_SRC diff
+-pragma solidity ^0.5.8;
++pragma solidity ^0.7.5;
+#+END_SRC
+
+#+BEGIN_SRC diff
++    function gracePeriod() public pure returns (uint256) {
++        return GRACE_PERIOD;
++    }
+#+END_SRC
+
+All constants remain the same.
+
+** Governor
+
+The only substantive non syntactic differences with the Compound Governor
+Alpha are:
+
+- solidity 0.5.16 -> 0.7.5
+- use of the ~gracePeriod~ getter in ~Timelock~
+- removal of the ~id~ from the Proposal struct
+
+All constants remain the same.
+
+#+BEGIN_SRC diff
+-pragma solidity ^0.5.16;
++pragma solidity ^0.7.5;
+#+END_SRC
+
+#+BEGIN_SRC diff
+         } else if (proposal.executed) {
+             return ProposalState.Executed;
+-        } else if (block.timestamp >= add256(proposal.eta, timelock.GRACE_PERIOD())) {
++        } else if (block.timestamp >= add256(proposal.eta, timelock.gracePeriod())) {
+             return ProposalState.Expired;
+         } else {
+#+END_SRC
+
+#+BEGIN_SRC diff
+         proposalCount++;
+-        Proposal memory newProposal = Proposal({
+-            id: proposalCount,
+-            proposer: msg.sender,
+-            eta: 0,
+-            targets: targets,
+-            values: values,
+-            signatures: signatures,
+-            calldatas: calldatas,
+-            startBlock: startBlock,
+-            endBlock: endBlock,
+-            forVotes: 0,
+-            againstVotes: 0,
+-            canceled: false,
+-            executed: false
+-        });
+-
+-        proposals[newProposal.id] = newProposal;
+-        latestProposalIds[newProposal.proposer] = newProposal.id;
+-
+-        emit ProposalCreated(newProposal.id, msg.sender, targets, values, signatures, calldatas, startBlock, endBlock, description);
+-        return newProposal.id;
++        Proposal storage newProposal = proposals[proposalCount];
++
++        uint256 proposalId = proposalCount;
++
++        newProposal.proposer = msg.sender;
++        newProposal.eta = 0;
++        newProposal.targets = targets;
++        newProposal.values = values;
++        newProposal.signatures = signatures;
++        newProposal.calldatas = calldatas;
++        newProposal.startBlock = startBlock;
++        newProposal.endBlock = endBlock;
++        newProposal.forVotes = 0;
++        newProposal.againstVotes = 0;
++        newProposal.canceled = false;
++        newProposal.executed = false;
++
++        latestProposalIds[newProposal.proposer] = proposalId;
++
++        emit ProposalCreated(
++            proposalId,
++            msg.sender,
++            targets,
++            values,
++            signatures,
++            calldatas,
++            startBlock,
++            endBlock,
++            description
++        );
++        return proposalId;
+     }
+#+END_SRC
+
+** Radicle Token
+
+The Radicle Token contains the following substantive non-syntactical
+changes over the COMP token:
+
+- solidity 0.5.16 -> 0.7.5
+- 10 million -> 100 million total supply
+- ~burnFrom~, allowing the caller to burn tokens from an address, provided
+  the caller has a sufficient allowance. This is semantically identical to
+  ~transferFrom(account, 0, rawAmount)~, except the balance of ~address(0)~
+  does not increase and ~totalSupply~ is decreased by ~rawAmount~.
+- ~permit~ as specified in [[https://eips.ethereum.org/EIPS/eip-2612][EIP 2612]].
+  This is semantically identical to current implementations of ~permit~ as
+  found in Uniswap v2 tokens and in the UNI governance token.
+
+All constants remain the same, aside from the total supply.
+
+#+BEGIN_SRC diff
+-pragma solidity ^0.5.16;
++pragma solidity ^0.7.5;
+#+END_SRC
+
+#+BEGIN_SRC diff
+     /// @notice Total number of tokens in circulation
+-    uint public constant totalSupply = 10000000e18; // 10 million Comp
++    uint256 public totalSupply = 100000000e18; // 100 million tokens
+#+END_SRC
+
+#+BEGIN_SRC diff
++    /**
++     * @notice Burn `rawAmount` tokens from `account`
++     * @param account The address of the account to burn
++     * @param rawAmount The number of tokens to burn
++     */
++    function burnFrom(address account, uint256 rawAmount) public {
++        require(account != address(0), "RadicleToken::burnFrom: cannot burn from the zero address");
++        uint96 amount = safe96(rawAmount, "RadicleToken::burnFrom: amount exceeds 96 bits");
++
++        address spender = msg.sender;
++        uint96 spenderAllowance = allowances[account][spender];
++        if (spender != account && spenderAllowance != uint96(-1)) {
++            uint96 newAllowance =
++                sub96(
++                    spenderAllowance,
++                    amount,
++                    "RadicleToken::burnFrom: burn amount exceeds allowance"
++                );
++            allowances[account][spender] = newAllowance;
++            emit Approval(account, spender, newAllowance);
++        }
++
++        balances[account] = sub96(
++            balances[account],
++            amount,
++            "RadicleToken::burnFrom: burn amount exceeds balance"
++        );
++        emit Transfer(account, address(0), amount);
++
++        _moveDelegates(delegates[account], address(0), amount);
++
++        totalSupply -= rawAmount;
++    }
+#+END_SRC
+
+#+BEGIN_SRC diff
++    /**
++     * @notice Approves spender to spend on behalf of owner.
++     * @param owner The signer of the permit
++     * @param spender The address to approve
++     * @param deadline The time at which the signature expires
++     * @param v The recovery byte of the signature
++     * @param r Half of the ECDSA signature pair
++     * @param s Half of the ECDSA signature pair
++     */
++    function permit(
++        address owner,
++        address spender,
++        uint256 value,
++        uint256 deadline,
++        uint8 v,
++        bytes32 r,
++        bytes32 s
++    ) public {
++        bytes32 structHash =
++            keccak256(
++                abi.encode(PERMIT_TYPEHASH, owner, spender, value, nonces[owner]++, deadline)
++            );
++        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR(), structHash));
++        require(owner == ecrecover(digest, v, r, s), "RadicleToken::permit: invalid signature");
++        require(owner != address(0), "RadicleToken::permit: invalid signature");
++        require(block.timestamp <= deadline, "RadicleToken::permit: signature expired");
++        _approve(owner, spender, value);
+     }
+#+END_SRC
+
+* Findings
+
+Our findings are separated into three sections:
+
+- *[[Bugs]]*: issues that impact the security or correctness of the system
+- *[[Improvements]]*: changes that could improve the clarity, functionality, or efficiency of the system, but that do not impact security or correctness
+- *[[Notes and Miscellanea]]*: points of interest that do not merit an explicit recommendation for change
+
+** Bugs
+
+| *Finding*                                                                                                  | *Severity* | *Likelihood* | *Addressed* |
+|----------------------------------------------------------------------------------------------------------+----------+------------+-----------|
+| [[B01: VestingToken: =withdrawableBalance()= can revert after vesting is interrupted]]                         | Low      | Medium     | [[https://github.com/radicle-dev/radicle-contracts/commit/02999d43e860ef34ddbd84eca7513d569afced68][=02999d4=]] |
+|----------------------------------------------------------------------------------------------------------+----------+------------+-----------|
+| [[B02: VestingToken: Misleading value for =withdrawn= variable after vesting is terminated]]                   | Low      | Low        | [[https://github.com/radicle-dev/radicle-contracts/commit/7d0e5ec110b9ac0b0fd05bf5f6462304929530a7][=7d0e5ec=]] |
+|----------------------------------------------------------------------------------------------------------+----------+------------+-----------|
+| [[B03: Governor/Timelock: Multiple calls to the same contract cannot be performed within the same proposal]] | Medium   | Low        |           |
+|----------------------------------------------------------------------------------------------------------+----------+------------+-----------|
+| [[B04: Registrar: ~setDomainOwner~ should not set ~resolver~ or ~ttl~ values for the domain]]                      | Low      | High       | [[https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3][=ba879bc=]] |
+|----------------------------------------------------------------------------------------------------------+----------+------------+-----------|
+| [[B05: Registrar: Revoked names cannot be re-registered]]                                                     | Low      | Medium     | [[https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3][=ba879bc=]] |
+|----------------------------------------------------------------------------------------------------------+----------+------------+-----------|
+| [[B06: Registrar: New names have no resolver]]                                                               | Low      | High       | [[https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3][=ba879bc=]] |
+|----------------------------------------------------------------------------------------------------------+----------+------------+-----------|
+| [[B07: Registrar: Name registration is vulnerable to frontrunning attacks]]                                  | High     | Medium     | [[https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3][=ba879bc=]] |
+|----------------------------------------------------------------------------------------------------------+----------+------------+-----------|
+| [[B08: Registrar: Name registration log is missing preimage]]                                                | Low      | High       | [[https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3][=ba879bc=]] |
+|----------------------------------------------------------------------------------------------------------+----------+------------+-----------|
+| [[B09: Add Events to stateful functions of Registrar, VestingToken and Treasury]]                            | Low      | High       | [[https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3][=ba879bc=]] |
+|----------------------------------------------------------------------------------------------------------+----------+------------+-----------|
+| [[B10: Registrar: Implement protections against name squatting]]                                             | Medium   | High       |           |
+|----------------------------------------------------------------------------------------------------------+----------+------------+-----------|
+
+*** B01: VestingToken: =withdrawableBalance()= can revert after vesting is interrupted
+In =VestingToken.sol=, the =withdrawableBalance()= method will revert
+if vesting has been terminated, but the vesting period has not yet ended,
+due to a subtraction underflow at [[https://github.com/radicle-dev/radicle-contracts/blob/master/contracts/Governance/VestingToken.sol#L84][L84]].
+
+It is expected that =withdrawableBalance= should always return 0 after
+vesting has been terminated, which can be achieved by adding:
+#+BEGIN_SRC solidity
+if (interrupted) return 0;
+#+END_SRC
+
+to the beginning of =withdrawableBalance=, and moving
+#+BEGIN_SRC solidity
+interrupted = true;
+#+END_SRC
+
+to the bottom of =terminateVesting()=.
+
+*** B02: VestingToken: Misleading value for =withdrawn= variable after vesting is terminated
+
+After vesting is terminated, the =withdrawn= variable will always be equal to the
+total amount to be vested, regardless of whether the beneficiary received the
+full amount or if vesting was terminated prematurely.
+
+Instead of setting:
+#+BEGIN_SRC solidity
+withdrawn = totalVestingAmount;
+#+END_SRC
+
+setting
+#+BEGIN_SRC solidity
+withdrawn = totalToBeVested;
+#+END_SRC
+
+would more accurately reflect the token amount that the beneficiary has received.
+
+*** B03: Governor/Timelock: Multiple calls to the same contract cannot be performed within the same proposal
+
+When a proposal passes, the Governor queues all the corresponding function calls in the Timelock,
+which allows them to be executed after the =Timelock.GRACE_PERIOD= has passed.
+
+In this process, the function calls are identified
+by =txHash = keccak256(abi.encode(target, value, signature, data, eta))=, and
+proposals which contain more multiple function calls with the same =txHash= cannot be queued
+or executed.
+
+This restriction limits the possible actions of Radicle Governance, as it makes it unable to
+perform certain stateful function calls. For example, if Governance needed to deploy multiple
+contracts from a factory in the same transaction, it would be unable to call
+=Factory.build()= multiple times within the same proposals.
+
+Allowing repeated function calls within the same proposals could easily be achieved,
+for example by adding =salt= or a =nonce= to transactions.
+
+*** B04: Registrar: ~setDomainOwner~ should not set ~resolver~ or ~ttl~ values for the domain
+
+The ~setDomainOwner~ method in the Registrar makes a call to ~setRecord~ on the ENS
+registry, and passes in the address of the new owner as the new ~resolver~ value,
+and a value of 0 for the ~ttl~.
+
+Setting the ~resolver~ and ~ttl~ values for the domain during an ownership change
+seems unnecessary, and could lead to disruption for downstream clients who rely
+on the resolver for the ~radicle.eth~ domain, especially as the ~resolver~ value is
+almost certainly incorrect.
+
+~setDomainOwner~ should call ~setOwner~ on ens, and separate admin methods should be
+added in the Registrar that allow setting of the ~resolver~ and ~ttl~ values on the
+~radicle.eth~ domain.
+
+*** B05: Registrar: Revoked names cannot be re-registered
+
+The new ENS registry implements a mechanism where lookups will fallback to the
+old registry if the ~owner~ field of a record is set to ~address(0)~. This means
+that ~address(0)~ acts as a sentinel value indicating that the name does not have
+an owner in the new registry, but it may still have a record in the old
+registry. The new registry also makes use of an additional sentinel value: the
+address of the registry itself. This value has the meaning: "this name does
+not exist in the old registry and is controlled by ~address(0)~".
+
+If users call ~setOwner(node, address(0))~ on the new registry, the owner field on
+the record will in set to the address of the registry itself, and when calling
+~owner(node)~, ~address(0)~ will be returned if the ~owner~ field has a value of
+~address(this)~.
+
+The radicle registrar uses a call to ~ens.recordExists(node)~ as part of
+~registerRad~ to check if a domain has already been registered. ~recordExists~ does
+not take the above mechanism into account, and will return ~false~ iff the ~owner~
+field has been set to ~address(0)~. This means that if the owner of a radicle
+domain decides to revoke their ownership by calling ~ens.setOwner(domain,
+address(0))~ the domain owner will be set to ~address(this)~, and
+~ens.recordExists(domain)~ will always return ~true~ for that domain, meaning that
+it can never again be registered.
+
+This issue can be avoided by using a call to ~ens.owner(domain)~ (which accounts
+for the various internal sentinel values) instead of the call to ~ens.recordExists~.
+
+*** B06: Registrar: New names have no resolver
+
+The radicle registrar does not set a value for the ~resolver~ field for newly
+registered subdomains. While this field can be set by owner subsequent to the
+name registration, it involves an extra transaction.
+
+Name registration UX could be improved by setting a sensible default for the
+~resolver~ field in newly created ~radicle.eth~ subdomains (perhaps to the same value
+as used for ~radicle.eth~).
+
+*** B07: Registrar: Name registration is vulnerable to frontrunning attacks
+
+An attacker with a good view of the mempool could watch for transactions
+registering new ~radicle.eth~ subdomains and submit a transaction with a higher
+gas price claiming the name for themselves.
+
+While this attack has an up-front cost, they can now offer the name to the original
+submitter of the transaction for more than the cost of submitting the transaction.
+
+To avoid this issue, a commit/reveal scheme could be implemented:
+
+1. submit a commitment to register a domain (~commit(keccak256(name, owner, secret))~)
+2. submit a registration transaction within some predetermined time period (~register(name, owner, secret)~)
+
+An attacker who is watching the mempool cannot see which name/owner pairs are
+being committed to, and once the registration transaction is revealed, they are
+unable to take the name for themselves (they can of course still register the
+name on behalf of the ~owner~ specified in the commitment).
+
+*** B08: Registrar: Name registration log is missing preimage
+
+The ~NameRegistered~ event contains the ens node associated with the registered
+name, but does not include the name itself. While the name can be recovered via
+calldata, this procedure is more complex and not supported by many popular tools
+(e.g. Dune Analytics).
+
+Adding the domain name to the ~NameRegistered~ even will make life easier for
+users of the radicle registrar.
+
+*** B09: Add Events to stateful functions of Registrar, VestingToken and Treasury
+
+Adding events makes it easier for interfaces and other tools to quickly analyze the
+state of contracts, and cheaply recreate its historical state.
+
+*** B10: Registrar: Implement protections against name squatting
+
+Registering a name under ~radicle.eth~ may be quite cheap directly after the
+launch, and there is a risk that many high value names will be claimed by
+squatters.
+
+It may be prudent to investigate restrictions on the registration of very short
+names, or names of existing high profile software projects (e.g. the largest 100
+projects on github). The team may also wish to consider adding an expiry period
+to ~radicle.eth~ subdomains.
+
+The radicle team updated the registrar to disallow registration of names that
+are represented with a single byte when serialzed. This dissalows registration
+of single character ascii names (e.g. ~x.radicle.eth~), but still allows the
+registration of single character names that have multi-byte representations when
+serialized (e.g. emojis, chinese characters).
+
+** Improvements
+
+| *Recommendation*                                                         | *Implemented* |
+|------------------------------------------------------------------------+-------------|
+| [[Use =calldata= as function variable locations wherever possible]]          | [[https://github.com/radicle-dev/radicle-contracts/commit/f63ee5c7a05cbc4976864ebc953303396a14978b][=f63ee5c=]]   |
+|------------------------------------------------------------------------+-------------|
+| [[Allow the ENS resolver and ttl to be set by the admin of the Registrar]] | [[https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3][=ba879bc=]]   |
+|------------------------------------------------------------------------+-------------|
+| [[Deprecate Treasury in favor of Timelock]]                                | [[https://github.com/radicle-dev/radicle-contracts/commit/544601aa4c5518db711f1457bd021dca77901e47][=544601a=]]   |
+|------------------------------------------------------------------------+-------------|
+| [[Remove id from Proposal struct]]                                         | [[https://github.com/radicle-dev/radicle-contracts/commit/6dca55be29bdfcb41e903972e1d8f4a892d69337][=6dca55b=]]   |
+|------------------------------------------------------------------------+-------------|
+| [[Rearrange Proposal struct members for more efficient packing]]           |             |
+|------------------------------------------------------------------------+-------------|
+| [[Governor: fix error message in `propose` ]]                              | [[https://github.com/radicle-dev/radicle-contracts/commit/f1330e7ffc8635df771bba7d0a504f2f76784f45][=f1330e7=]]   |
+|------------------------------------------------------------------------+-------------|
+| [[Remove or loosen restriction on name length]]                            | [[https://github.com/radicle-dev/radicle-contracts/commit/a1cc6fd244b2ee8b2107b06dacdccd89f9940cde][=a1cc6fd=]]   |
+|------------------------------------------------------------------------+-------------|
+| [[Add permit to RadicleToken]]                                             | [[https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3][=ba879bc=]]   |
+|------------------------------------------------------------------------+-------------|
+| [[Use immutable for Governor.token and Governor.timelock]]                 |             |
+|------------------------------------------------------------------------+-------------|
+| [[Incentivize relaying of ~register~ transactions in the Registrar]]         |             |
+|------------------------------------------------------------------------+-------------|
+
+
+*** Use =calldata= as function variable locations wherever possible
+
+Using =calldata= as location for reference data types in the following functions:
+- Timelock.queueTransaction
+- Timelock.cancelTransaction
+- Timelock.executeTransaction
+
+would improve gas efficiency in the Timelock contract.
+
+*** Allow the ENS resolver and ttl to be set by the admin of the Registrar
+
+The ~Registrar~ does not allow the ~admin~ to set a new ~resolver~ or ~ttl~ value for
+the ~radicle.eth~ domain. While this can be achieved by means of a registrar
+upgrade, this seems unnecessarily restrictive.
+
+The audit team recommends adding methods that allow the registrar ~admin~ to set
+the ~resolver~ and ~ttl~ values for the ~radicle.eth~ domain.
+
+*** Deprecate Treasury in favor of Timelock
+
+The =Treasury= contract is a simple contract wallet that holds ETH, only allowing
+the admin to withdraw the funds.  Discussions with the Radicle team revealed
+that this treasury contract was meant to be controlled by Governance, and could
+also come to hold ERC20 tokens. Since the Timelock contract is already well
+equipped to both hold ETH and other assets in behalf of the Governance contract,
+the audit team recommends getting rid of the Treasury completely and just using
+the Timelock as a treasury instead.
+
+*** Remove unused features from the Registrar
+
+The registrar currently contains placeholder methods relating to currently
+unimplemented flows that would allow users to register a domain using an amount
+of ETH determined by an external price oracle.
+
+Removing these methods (and their associated storage variables) would make the
+contract both easier to read and cheaper to deploy.
+
+*** Remove id from Proposal struct
+The =id= field of the proposal struct is redundant. Proposals are indexed by their id,
+so any lookup would have to already be aware of the id of the proposal.
+Removing this should save at least 1 SSTORE per proposal.
+
+*** Rearrange Proposal struct members for more efficient packing
+
+Solidity packs adjacent value types occupying less than 32 bytes into a single
+slot whenever possible. In the case of the Proposal struct, there are several
+items that could be packed together if moved next to each other. The audit team
+suggests moving the proposer ~address~ next to the booleans in order to fit them in
+to a single storage slot.
+
+*** Governor: fix error message in `propose`
+The function =Governor.propose= requires the sender to hold more
+than =Governor.proposalThreshold()= votes in order to submit a proposal.
+However, the error message accompanying this constraint reads:
+"Governor::propose: proposer votes below proposal threshold", which is not
+true if the proposer has exactly =proposalThreshold= number of votes.
+
+*** Remove or loosen restriction on name length
+
+Names are restricted to be less than 32 bytes in length. As names in ENS are
+stored in a dictionary keyed by the [[https://docs.ens.domains/contract-api-reference/name-processing#hashing-names][namehash]] of the domain (a ~bytes32~), this
+restriction is not required on the smart contract level.
+
+UTF-8 encoded unicode characters have a maximum size of 4 bytes, meaning that
+the 32 bytes length restriction could result in an 8 character limit for some
+names.
+
+The audit team recommends either loosening or lifting this restriction entirely.
+
+Removing this check would save ~110 gas (~$0.15 @100 gwei/gas and 1400 USD/ETH)
+for every name registration.
+
+*** Add permit to RadicleToken
+
+Implementing [[https://eips.ethereum.org/EIPS/eip-2612][=permit=]] into the RadicleToken would allow introduce less friction
+for interactions with the RadicleToken, and pave the way for a user experience
+wherein the user needs no eth to pay for transactions.
+
+*** Use immutable for Governor.token and Governor.timelock
+
+The values of the variables =token= and =timelock= cannot be altered after
+set in the constructor. Using =immutable= for these variables would provide
+an increase in gas efficiency.
+
+*** Incentivize relaying of ~register~ transactions in the Registrar
+
+The current signature based name registration flows in the radicle registrar do
+not offer any incentive to the relayer of a ~register~ transaction. This could be
+rectified by adding a ~registerWithFee~ method that pays the relayer of the call a
+fee upon successful name registration.
+
+*** Give ~admin~ control over the eth registrar address in the Registrar
+
+The address for the ~.eth~ registrar is read from the ens registry in
+~setDomainOwner~. It is assumed that the owner of the ~.eth~ tld in the ens registry
+will always be the ~.eth~ registrar. Should the ~owner~ of the ~.eth~ tld change to be
+a contract that reverts during the call to ~ethRegistrar.transferFrom~ then it
+will no longer be possible to migrate to a new registrar for the ~radicle.eth~
+name.
+
+The audit team recommends removing this assumption by reading the address of the
+~.eth~ registrar from a storage variable in the radicle registrar. The ~admin~ of
+the registrar should be able to set the value of this storage variable.
+
+** Notes and Miscellanea
+
+*** Address precalculation required for ~VestingToken~
+
+Since the vestingtoken contract performs a transferFrom
+in its constructor, one has to precalculate its address and approve
+it before it is constructed.
+
+*** ENS multisig can takeover all ~radicle.eth~ names
+
+The ENS root node is under the control of the [[https://etherscan.io/address/0xcf60916b6cb4753f58533808fa610fcbd4098ec0][ens multisig]]. The owner of the
+root node can change change ownership of any subnode in the tree, giving the
+signers for this multisig total control over all ens domains.
+
+Should this multisig be compromised, ownership of all ~radicle.eth~ domains could
+fall into the hands of a malicious attacker.
+
+*** Name registration can expose sensitive financial details
+
+Registration of a ~radicle.eth~ subdomain creates an irrevocable link between an
+ethereum address and a human readable identifier. Users of the system should be
+aware that this allows anyone who knows the radicle name to view the full
+history of all transactions carried out by that address. Further heuristic
+analysis may also allow the linking of connected addresses to that name.
+
+It should be considered a best practice to register a radicle domain with a
+fresh address that is unconnected to other on chain activities.
+
+* Appendix A. Bug Classifications
+
+| *Severity*      |                                                                                                           |
+|---------------+-----------------------------------------------------------------------------------------------------------|
+| /informational/ | The issue does not have direct implications for functionality, but could be relevant for understanding.   |
+| /low/           | The issue has no security implications, but could affect some behaviour in an unexpected way.             |
+| /medium/        | The issue affects some functionality, but does not result in economically significant loss of user funds. |
+| /high/          | The issue can cause loss of user funds.                                                                   |
+|---------------+-----------------------------------------------------------------------------------------------------------|
+| *Likelihood*    |                                                                                                           |
+|---------------+-----------------------------------------------------------------------------------------------------------|
+| /low/           | The system is unlikely to be in a state where the bug would occur or could be made to occur by any party. |
+| /medium/        | It is fairly likely that the issue could occur or be made to occur by some party.                         |
+| /high/          | It is very likely that the issue could occur or could be exploited by some parties.                       |
+
+* Appendix B. Prior Audit Report Comparisons
+
+The team is aware of two public audit reports conducted for the Compound
+Governance system [[https://github.com/trailofbits/publications/blob/master/reviews/compound-governance.pdf][1]] [[https://blog.openzeppelin.com/compound-alpha-governance-system-audit/][2]] conducted by Trail of Bits and Open Zeppelin
+respectively. The Radicle governance contracts are based on the Compound
+Governance contracts. Here we are cherry picking some recommendations that have
+not yet been addressed.
+
+- Clean up return statements in RadicleToken: the =_delegate= function does not
+  return any value. Both =delegate= and =delegateBySig= attempt to return the result
+  of =_delegate= function.
+
+- Document the variability in voting period length. Consider the historical
+  range of block times and whether it will allow for an acceptable voting
+  period. Consider adding logic in the Governor contract so the voting period
+  time may be adjusted via governance proposals, or consider comparing block
+  timestamps instead of block numbers to create a fixed-length voting period.
+
+# adds nice anchor links on hover to headings: https://github.com/bryanbraun/anchorjs
+# has to be added here at the end or it doesn't work for some reason
+#+BEGIN_EXPORT html
+<script src="https://cdn.jsdelivr.net/npm/anchor-js/anchor.min.js"></script>
+<script> anchors.add(); </script>
+#+END_EXPORT
+* Appendix C. Contract Map
+
+#+BEGIN_EXPORT html
+<img src=./resources/governance.png />
+<img src=./resources/registrar.png />
+#+END_EXPORT
