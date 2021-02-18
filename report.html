@@ -1,0 +1,1807 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2021-02-18 Thu 17:00 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Radicle Audit Report:</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="dapp.org" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<style> body { line-height: 1.6; font-size: 18px; padding: 0 10px;text-align: justify;text-justify: inter-word; margin: 60px auto; max-width: 800px; } h2,h2,h3{line-height:1.2} a:link { color: #0466c8; } a:visited { color: #0466c8; } code, .code { font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 1.125rem; line-height: 1.6; padding: 0; padding-top: 0; padding-bottom: 0; margin: 0; font-size: 85%; background-color: rgba(0,0,0,0.04); border-radius: 3px; } h2 { border-bottom: 3px solid #444; } h3 { text-decoration: underline; } h4 { font-style: italic } table { width: 100% } .src,.example {background: #292929; color: #fafafa; font-size: 16px; padding: 0; padding: 10px;} img { width: 100% } blockquote {margin: 20px; padding: 20px; border-left: 2px solid; font-style: italic }</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2020 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="preamble" class="status">
+<h1 class="title">Radicle Audit Report:</h1>
+	  <h1 class="subtitle">Governance and Registrar</h1>
+	  <p class="subtitle"><i>dapp.org</i></p>
+	  <p class="subtitle"><a href="mailto:fv@dapp.org.uk">fv@dapp.org.uk</a></p>
+	  <p class="subtitle">last updated: 18.02.2021 </p><br></br>
+</div>
+<div id="content">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org5201f2b">Summary</a>
+<ul>
+<li><a href="#org00a26a8">Scope</a></li>
+<li><a href="#org35811f8">Tests</a></li>
+<li><a href="#org6c35d29">Team</a></li>
+<li><a href="#org2223777">Changelog</a></li>
+</ul>
+</li>
+<li><a href="#orge1cc884">Design Analysis</a>
+<ul>
+<li><a href="#org52c0429">Registrar</a>
+<ul>
+<li><a href="#org8e2a382">Name Registration &amp; Transaction Reordering</a></li>
+<li><a href="#org41d2975">Signature Based Name Registration</a></li>
+<li><a href="#orge645189">Relayer Trust Assumptions</a></li>
+<li><a href="#org4bf2ab1">Properties</a></li>
+</ul>
+</li>
+<li><a href="#org366433a">Timelock</a></li>
+<li><a href="#orgbcbe59d">Governor</a></li>
+<li><a href="#org723d61c">Radicle Token</a></li>
+</ul>
+</li>
+<li><a href="#orga1eecb3">Findings</a>
+<ul>
+<li><a href="#orga60623c">Bugs</a>
+<ul>
+<li><a href="#org732654f">B01: VestingToken: <code>withdrawableBalance()</code> can revert after vesting is interrupted</a></li>
+<li><a href="#org652f42c">B02: VestingToken: Misleading value for <code>withdrawn</code> variable after vesting is terminated</a></li>
+<li><a href="#orgba2dd63">B03: Governor/Timelock: Multiple calls to the same contract cannot be performed within the same proposal</a></li>
+<li><a href="#org8b34cfc">B04: Registrar: <code>setDomainOwner</code> should not set <code>resolver</code> or <code>ttl</code> values for the domain</a></li>
+<li><a href="#orgf077ff0">B05: Registrar: Revoked names cannot be re-registered</a></li>
+<li><a href="#org64f5179">B06: Registrar: New names have no resolver</a></li>
+<li><a href="#org50ed4b7">B07: Registrar: Name registration is vulnerable to frontrunning attacks</a></li>
+<li><a href="#org80bd459">B08: Registrar: Name registration log is missing preimage</a></li>
+<li><a href="#org2effc13">B09: Add Events to stateful functions of Registrar, VestingToken and Treasury</a></li>
+<li><a href="#orga412045">B10: Registrar: Implement protections against name squatting</a></li>
+</ul>
+</li>
+<li><a href="#org5d35f2b">Improvements</a>
+<ul>
+<li><a href="#org868e7f4">Use <code>calldata</code> as function variable locations wherever possible</a></li>
+<li><a href="#orgd2ee89d">Allow the ENS resolver and ttl to be set by the admin of the Registrar</a></li>
+<li><a href="#org969b9b4">Deprecate Treasury in favor of Timelock</a></li>
+<li><a href="#org9adf897">Remove unused features from the Registrar</a></li>
+<li><a href="#org2f26833">Remove id from Proposal struct</a></li>
+<li><a href="#orgc725dcb">Rearrange Proposal struct members for more efficient packing</a></li>
+<li><a href="#org0e5df1e">Governor: fix error message in `propose`</a></li>
+<li><a href="#org7aa5d78">Remove or loosen restriction on name length</a></li>
+<li><a href="#orgff5b847">Add permit to RadicleToken</a></li>
+<li><a href="#orgb3524cb">Use immutable for Governor.token and Governor.timelock</a></li>
+<li><a href="#org484d91b">Incentivize relaying of <code>register</code> transactions in the Registrar</a></li>
+<li><a href="#org3679ab3">Give <code>admin</code> control over the eth registrar address in the Registrar</a></li>
+</ul>
+</li>
+<li><a href="#orga341b4a">Notes and Miscellanea</a>
+<ul>
+<li><a href="#org4637ee2">Address precalculation required for <code>VestingToken</code></a></li>
+<li><a href="#orgb298ece">ENS multisig can takeover all <code>radicle.eth</code> names</a></li>
+<li><a href="#org43c8f2f">Name registration can expose sensitive financial details</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org9ca605b">Appendix A. Bug Classifications</a></li>
+<li><a href="#org8678aae">Appendix B. Prior Audit Report Comparisons</a></li>
+<li><a href="#org1d037fa">Appendix C. Contract Map</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org5201f2b" class="outline-2">
+<h2 id="org5201f2b">Summary</h2>
+<div class="outline-text-2" id="text-org5201f2b">
+<p>
+From January 27th to February 11th, a team of four engineers spent a total
+of 10 person weeks reviewing the smart contracts for the Radicle token and
+governance system, as well as the name registration contracts.
+</p>
+
+<p>
+This work was carried out against the following git repository:
+</p>
+
+<ul class="org-ul">
+<li><a href="https://github.com/radicle-dev/radicle-contracts"><code>radicle-dev/radicle-contracts</code></a> at <code>2c45833457eb4ea184d3b8f93230988817917355</code></li>
+</ul>
+</div>
+
+<div id="outline-container-org00a26a8" class="outline-3">
+<h3 id="org00a26a8">Scope</h3>
+<div class="outline-text-3" id="text-org00a26a8">
+<p>
+The team reviewed the following contracts:
+</p>
+
+<ul class="org-ul">
+<li><a href="https://github.com/radicle-dev/radicle-contracts/blob/2c45833457eb4ea184d3b8f93230988817917355/contracts/Governance/RadicleToken.sol">RadicleToken.sol</a>: The protocol token, a lightly modified fork of COMP</li>
+<li><a href="https://github.com/radicle-dev/radicle-contracts/blob/2c45833457eb4ea184d3b8f93230988817917355/contracts/Governance/Governor.sol">Governor.sol</a>: The voting contract, forked from Compound</li>
+<li><a href="https://github.com/radicle-dev/radicle-contracts/blob/2c45833457eb4ea184d3b8f93230988817917355/contracts/Governance/Timelock.sol">TimeLock.sol</a>: A governance timelock, again forked from Compound</li>
+<li><a href="https://github.com/radicle-dev/radicle-contracts/blob/2c45833457eb4ea184d3b8f93230988817917355/contracts/Governance/Treasury.sol">Treasury.sol</a>: A simple ETH only treasury contract</li>
+<li><a href="https://github.com/radicle-dev/radicle-contracts/blob/2c45833457eb4ea184d3b8f93230988817917355/contracts/Governance/VestingToken.sol">VestingToken.sol</a>: A contract for enforcing vesting schedules</li>
+<li><a href="https://github.com/radicle-dev/radicle-contracts/blob/2c45833457eb4ea184d3b8f93230988817917355/contracts/Registrar.sol">Registrar.sol</a>: A ENS name registrar for the <code>radicle.eth</code> subdomain</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org35811f8" class="outline-3">
+<h3 id="org35811f8">Tests</h3>
+<div class="outline-text-3" id="text-org35811f8">
+<p>
+To facilitate the analysis, the team implemented a suite of integration and
+property tests using the <a href="https://github.com/dapphub/dapptools">dapptools</a> toolbox, which can be found at
+<a href="https://github.com/dapp-org/radicle-contracts-tests">dapp-org/radicle-contracts-tests</a>.
+</p>
+
+<p>
+This includes demonstrations of most of the vulnerabilities described in this document.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6c35d29" class="outline-3">
+<h3 id="org6c35d29">Team</h3>
+<div class="outline-text-3" id="text-org6c35d29">
+<p>
+The review was carried out by the following members of the <a href="http://dapp.org">dapp.org</a> collective:
+</p>
+
+<ul class="org-ul">
+<li>David Terry</li>
+<li>Jenny Pollack</li>
+<li>Martin Lundfall</li>
+<li>Rain</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org2223777" class="outline-3">
+<h3 id="org2223777">Changelog</h3>
+<div class="outline-text-3" id="text-org2223777">
+<p>
+A revision history for this document can be found <a href="https://github.com/dapp-org/radicle-contracts-report/commits/main">here</a>.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orge1cc884" class="outline-2">
+<h2 id="orge1cc884">Design Analysis</h2>
+<div class="outline-text-2" id="text-orge1cc884">
+<p>
+The <code>Registrar</code> is the largest novel component and we review the design in
+depth here.
+</p>
+
+<p>
+Several components are based on source code from Compound: <code>Timelock</code>, <code>Governor</code>,
+and <code>RadicleToken</code>. Here we review the source code differences contract by
+contract, based on the deployed Compound <code>Timelock</code>, <code>GovernorAlpha</code> and <code>COMP</code>
+contracts, and the modified versions of these contracts in the <code>radicle-contracts</code>
+repository. Overall, the substantive differences are small and this system is a
+faithful implementation of "Compound Governance".
+</p>
+
+<p>
+The analysis in this section is performmed against the updated <code>radicle-contracts</code>
+code at <code>920dcd3</code> (which includes fixes to most of the issues detailed in the
+<a href="#orga1eecb3">Findings</a> section of this report).
+</p>
+
+<p>
+We omit the <code>Treasury</code> from this section, as it was deprecated following this
+review, and also omit the <code>VestingToken</code> as it is simple and not public facing.
+</p>
+</div>
+
+<div id="outline-container-org52c0429" class="outline-3">
+<h3 id="org52c0429">Registrar</h3>
+<div class="outline-text-3" id="text-org52c0429">
+<p>
+The Registrar is securing an ownership right over the <code>radicle.eth</code> ens name. It
+additionally operates an automated subdomain registration scheme, where anyone
+can register a (valid) subdomain under <code>radicle.eth</code> by burning a predetermined
+amount of rad tokens.
+</p>
+
+<p>
+The Registrar is collectively owned and controlled by the radicle token
+holders. This ownership gives radicle governance certain powers:
+</p>
+
+<ul class="org-ul">
+<li>Ownership transferal for the <code>radicle.eth</code> ens name</li>
+<li>Configuration of ENS specific values for <code>radicle.eth</code> (<code>ttl</code> and <code>resolver</code> values)</li>
+<li>Configuration of the registration fee (denominated in rad)</li>
+<li>Configuration of the minimum delay between committing to a name and registering that name</li>
+</ul>
+
+<p>
+Note that although the Registrar contract as written does not allow radicle
+governance to make direct modifications to <code>radicle.eth</code> subdomains, the power to
+transfer ownership of the <code>radicle.eth</code> domain does indirectly allow radicle
+governance to take control of every subdomain registered under <code>radicle.eth</code>. Due
+to the hierarchical nature of the ENS system, the signers on the ENS root
+multisig also have this power.
+</p>
+</div>
+
+<div id="outline-container-org8e2a382" class="outline-4">
+<h4 id="org8e2a382">Name Registration &amp; Transaction Reordering</h4>
+<div class="outline-text-4" id="text-org8e2a382">
+<p>
+In order to provide robust protections against transaction reordering attacks, a
+commit reveal scheme is used for name registration. In this scheme, registrants
+must first submit a commitment to their desired name (the hash of the tuple
+<code>(name, owner, salt)</code>). Once a predetermined number of blocks have passed, the
+registrant can reveal the preimage to the commitment and register the <code>name</code> to
+the desired <code>owner</code>.
+</p>
+
+<p>
+A frontrunner can frontrun both a commitment tx and an registration tx. There
+are four ways to commit to a name (see below), and only one way to register. We
+analyse each in turn. In all cases below, we note that knowledge of the commitment
+does not bestow knowledge of the domain in the preimage, meaning that a
+frontrunner is not able to submit a competing commitment tx for the same name
+but with a different owner.
+</p>
+</div>
+
+<ul class="org-ul">
+<li><a id="org8b85485"></a><code>commit</code><br />
+<div class="outline-text-5" id="text-org8b85485">
+<p>
+The frontrunner knows the commitment.
+</p>
+
+<p>
+They can also make a call to <code>commit</code> ahead of the original caller with
+the same commitment, but since the <code>owner</code> of the domain is part of the
+commitment, the front runner will simply end up paying the registration fee on
+behalf of the original caller.
+</p>
+</div>
+</li>
+
+<li><a id="org1b20266"></a><code>commitWithPermit</code><br />
+<div class="outline-text-5" id="text-org1b20266">
+<p>
+The frontrunner knows:
+</p>
+
+<ol class="org-ol">
+<li>the commitment</li>
+<li>the contents of the signed <code>permit</code> message</li>
+</ol>
+
+<p>
+They can make a call to <code>commitWithPermit</code> with a different commitment but the
+same <code>permit</code> message, but since the caller of <code>commitWithPermit</code> pays the
+registration fee, this is equivalent to simply registering a different domain
+for themselves.
+</p>
+
+<p>
+As above, the frontrunner can submit the same call but from their address, with
+the same effect of paying the registration fee on behalf of the original registrant.
+</p>
+</div>
+</li>
+
+<li><a id="org822cd6c"></a><code>commitWithSig</code><br />
+<div class="outline-text-5" id="text-org822cd6c">
+<p>
+The frontrunner knows:
+</p>
+
+<ol class="org-ol">
+<li>the commitment</li>
+<li>the contents of the signed <code>commit</code> message</li>
+</ol>
+
+<p>
+All parameters to the call are either signed, or signatures, and so cannot be
+modified in any way by a frontrunner.
+</p>
+
+<p>
+The frontrunner can frontrun the relayer, claiming the <code>submissionFee</code> for
+themselves. Although this is undesirable for relay operators, it is not obvious
+that this is detrimental to the user. Taken to an extreme, this vector results
+in miners running relay services for users, an outcome that is in fact rather
+beneficial for users.
+</p>
+</div>
+</li>
+
+<li><a id="orgb8d3eb7"></a><code>commitBySigWithPermit</code><br />
+<div class="outline-text-5" id="text-orgb8d3eb7">
+<p>
+The frontrunner knows:
+</p>
+
+<ol class="org-ol">
+<li>the commitment</li>
+<li>the contents of the <code>commit</code> message</li>
+<li>the contents of the <code>permit</code> message</li>
+</ol>
+
+<p>
+As above, a frontrunner can submit the same tx but from their address, claiming
+the <code>submissionFee</code> from the original relayer.
+</p>
+
+<p>
+The frontrunner can submit a tx with the same commitment, but with a different
+<code>permit</code> message (or vice versa). In this case as the registration fee is taken
+from the signer of the <code>commit</code> message, they will likely simply cause the call to
+<code>revert</code> (unless the signer of the <code>commit</code> message has granted infinite approval to
+the registrar).
+</p>
+</div>
+</li>
+
+<li><a id="orgcef9468"></a><code>register</code><br />
+<div class="outline-text-5" id="text-orgcef9468">
+<p>
+The frontrunner knows the preimage to the commitment.
+</p>
+
+<p>
+The frontrunner can submit the same call, but from their address. In this case
+they will simply pay the gas cost of the registration for the <code>owner</code> in the
+commitment preimage.
+</p>
+
+<p>
+The frontrunner can submit a commitment to the same name, but with themselves as
+the owner. In this case they will pay the registration fee, and must hope that
+the original call to <code>register</code> does not succeed before <code>minCommitmentAge</code> blocks
+have passed. Callers of <code>register</code> must therefore take care to submit their tx
+with a competitive gas price, to ensure that it is included in good time.
+</p>
+</div>
+</li>
+</ul>
+</div>
+
+<div id="outline-container-org41d2975" class="outline-4">
+<h4 id="org41d2975">Signature Based Name Registration</h4>
+<div class="outline-text-4" id="text-org41d2975">
+<p>
+Names can be registered by a relayer on behalf of a registrant using EIP-712
+signed messages. This allows for low-trust, zero transaction, gas free name
+registration (relayers can always censor, and depending on the workflow may be
+able to front-run or block domain registration).
+</p>
+
+<p>
+There are 3 signature based methods that can be used to commit to a name
+registration:
+</p>
+
+<ul class="org-ul">
+<li><code>commitWithPermit</code>: allows callers to commit to name without first having to call <code>approve</code> on the radicle token</li>
+<li><code>commitBySig</code>: allows a relayer to commit to a name on behalf of another party</li>
+<li><code>commitBySigWithPermit</code>: allows a relayer to commit to a name on behalf of
+another party without that party needing to first call <code>approve</code> on the radicle token</li>
+</ul>
+
+<p>
+The final method (<code>commitBySigWithPermit</code>) allows registrants to register a
+<code>radicle.eth</code> subdomain by signing two EIP-712 messages:
+</p>
+
+<ol class="org-ol">
+<li>a <code>permit</code> message allowing the relayer to withdraw tokens from the registrants account</li>
+<li>a <code>commitBySig</code> message allowing the relayer to make a commitment on the registrants behalf</li>
+</ol>
+
+<p>
+If the relayer is trusted with the commitment preimage, they can also call
+<code>register</code> on behalf on the registrant once the minimum commit/reveal delay has elapsed.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orge645189" class="outline-4">
+<h4 id="orge645189">Relayer Trust Assumptions</h4>
+<div class="outline-text-4" id="text-orge645189">
+<p>
+The above methods allow a few different workflows, each differing in the
+trust assumptions made regarding the relayer and in the number of on chain
+transactions that must be submitted by the registrant:
+</p>
+</div>
+
+<ul class="org-ul">
+<li><a id="org066dc4e"></a>2 tx: registrant commits &amp; reveals<br />
+<div class="outline-text-5" id="text-org066dc4e">
+<p>
+In this variant, the registrant calls <code>commitWithPermit</code>, followed by <code>register</code>. No
+relayer is involved and the registrant must make no extra trust assumptions
+during name registration.
+</p>
+</div>
+</li>
+
+<li><a id="orgaec0e5f"></a>1 tx: relayer commits, registrant reveals<br />
+<div class="outline-text-5" id="text-orgaec0e5f">
+<p>
+Here, the registrant submits two signed messages to a relayer, a <code>permit</code> and a
+<code>commit</code>. The relayer calls <code>commitBySigWithPermit</code> and receives a fee in <code>rad</code> as
+compensation. The registrant waits <code>minCommitmentAge</code> blocks and calls <code>register</code>
+with the commitment preimage.
+</p>
+
+<p>
+In this case, the relayer can censor the registrant by failing to submit the
+transaction. If they do so, they will not receive their payment. The registrant
+can always fallback to the 2 tx workflow.
+</p>
+</div>
+</li>
+
+<li><a id="org5f5cafa"></a>0 tx: relayer commits &amp; reveals<br />
+<div class="outline-text-5" id="text-org5f5cafa">
+<p>
+Here, the registrant submits a signed <code>permit</code> and <code>commit</code> message to the relayer,
+as well as the preimage to the commitment. The relayer calls
+<code>commitBySigWithPermit</code>, waits <code>minCommitmentAge</code> blocks and calls <code>register</code> on
+behalf of the registrant with the commitment preimage. As currently implemented,
+the relayer has no incentive to call <code>register</code>, making this a fully altruistic
+action (see <a href="#org484d91b">Incentivize relaying of <code>register</code> transactions in the Registrar</a>).
+</p>
+
+<p>
+In this case, the relayer can censor (as above), but can additionally choose to
+register the name for themselves (perhaps with the intention of charging the
+original registrant a high price to return the name). Note that should they do
+so, they will have to construct a new commitment and so will:
+</p>
+
+<ol class="org-ol">
+<li>not receive their submission fee</li>
+<li>have to pay the registration fee themselves</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+
+<div id="outline-container-org4bf2ab1" class="outline-4">
+<h4 id="org4bf2ab1">Properties</h4>
+<div class="outline-text-4" id="text-org4bf2ab1">
+<p>
+The following are human readable properties that should hold for all possible Registrar states.
+</p>
+</div>
+
+<ul class="org-ul">
+<li><a id="org1f64671"></a>Top Domain Ownership &amp; Control<br />
+<div class="outline-text-5" id="text-org1f64671">
+<ul class="org-ul">
+<li>Ownership of the <code>radicle.eth</code> domain can only be changed by the Registrar <code>admin</code> or parties with control over the <code>.eth</code> tld</li>
+<li>Ownership of the <code>radicle.eth</code> domain can always be changed by the Registrar
+(assuming that the registrar retains ownership of <code>radicle.eth</code>, and that the owner of <code>.eth</code> allows the registrar to call <code>transferFrom</code> on it)</li>
+<li>Transferring ownership of the <code>radicle.eth</code> domain also transfers ownership of the associated ERC-721 token in the <code>.eth</code> registry contract</li>
+<li>Transferring ownership of the <code>radicle.eth</code> domain also transfers ownership of the commitment state</li>
+</ul>
+</div>
+</li>
+
+<li><a id="orgb57a7c4"></a>Subdomain Ownership &amp; Control<br />
+<div class="outline-text-5" id="text-orgb57a7c4">
+<ul class="org-ul">
+<li>It is not possible to register a subdomain without burning <code>registrationFeeRad</code> RAD tokens</li>
+<li>Once registered, the only parties that can modify the ownership, resolver, or
+ttl of a subdomain are the current <code>owner</code>, the <code>admin</code> of the Registrar contract, or parties with control over the <code>.eth</code> tld.</li>
+<li>Subdomain owners can register an unlimited number of subdomains underneath their name (e.g. <code>a.b.c.d.e.radicle.eth</code>)</li>
+<li>Subdomains can be re-registered if their ownership is set to <code>address(0)</code></li>
+<li>It is not possible to register a subdomain that has a UTF-8 encoded representation that is:
+<ul class="org-ul">
+<li>less than 2 bytes in length</li>
+<li>greater than 128 bytes in length</li>
+</ul></li>
+</ul>
+</div>
+</li>
+
+<li><a id="orge597f9c"></a>Front Running Resistance<br />
+<div class="outline-text-5" id="text-orge597f9c">
+<p>
+An attacker that is able to insert &amp; reorder transactions cannot:
+</p>
+
+<ul class="org-ul">
+<li>block domain registration</li>
+<li>register pending domains for themselves</li>
+<li>force another party to pay for the registration of an attacker controlled subdomain</li>
+</ul>
+</div>
+</li>
+
+<li><a id="org7b579ca"></a>Commitment State<br />
+<div class="outline-text-5" id="text-org7b579ca">
+<ul class="org-ul">
+<li>State in the <code>Commitments</code> contract can only be written by the Registrar</li>
+</ul>
+</div>
+</li>
+
+<li><a id="orgc2a2678"></a>End User Workflows<br />
+<div class="outline-text-5" id="text-orgc2a2678">
+<ul class="org-ul">
+<li>It is possible for end users to register a domain without having to submit a tx onchain or hold any ETH</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org366433a" class="outline-3">
+<h3 id="org366433a">Timelock</h3>
+<div class="outline-text-3" id="text-org366433a">
+<p>
+The only substantive non syntactic differences with the Compound Timelock are:
+</p>
+
+<ul class="org-ul">
+<li>solidity 0.5.8 -&gt; 0.7.5</li>
+<li>addition of a <code>gracePeriod</code> getter for the <code>GRACE_PERIOD</code> constant</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-diff"><span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">pragma solidity ^0.5.8;</span>
++pragma solidity ^0.7.5;
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-diff"><span class="org-diff-indicator-added">+</span><span class="org-diff-added">    function gracePeriod() public pure returns (uint256) {</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        return GRACE_PERIOD;</span>
++    }
+</pre>
+</div>
+
+<p>
+All constants remain the same.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgbcbe59d" class="outline-3">
+<h3 id="orgbcbe59d">Governor</h3>
+<div class="outline-text-3" id="text-orgbcbe59d">
+<p>
+The only substantive non syntactic differences with the Compound Governor
+Alpha are:
+</p>
+
+<ul class="org-ul">
+<li>solidity 0.5.16 -&gt; 0.7.5</li>
+<li>use of the <code>gracePeriod</code> getter in <code>Timelock</code></li>
+<li>removal of the <code>id</code> from the Proposal struct</li>
+</ul>
+
+<p>
+All constants remain the same.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-diff"><span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">pragma solidity ^0.5.16;</span>
++pragma solidity ^0.7.5;
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-diff"><span class="org-diff-context">         } else if (proposal.executed) {</span>
+<span class="org-diff-context">             return ProposalState.Executed;</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">        } else if (block.timestamp &gt;= add256(proposal.eta, timelock.GRACE_PERIOD())) {</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        } else if (block.timestamp &gt;= add256(proposal.eta, timelock.gracePeriod())) {</span>
+<span class="org-diff-context">             return ProposalState.Expired;</span>
+         } else {
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-diff"><span class="org-diff-context">         proposalCount++;</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">        Proposal memory newProposal = Proposal({</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">            id: proposalCount,</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">            proposer: msg.sender,</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">            eta: 0,</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">            targets: targets,</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">            values: values,</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">            signatures: signatures,</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">            calldatas: calldatas,</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">            startBlock: startBlock,</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">            endBlock: endBlock,</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">            forVotes: 0,</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">            againstVotes: 0,</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">            canceled: false,</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">            executed: false</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">        });</span>
+<span class="org-diff-indicator-removed">-</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">        proposals[newProposal.id] = newProposal;</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">        latestProposalIds[newProposal.proposer] = newProposal.id;</span>
+<span class="org-diff-indicator-removed">-</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">        emit ProposalCreated(newProposal.id, msg.sender, targets, values, signatures, calldatas, startBlock, endBlock, description);</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">        return newProposal.id;</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        Proposal storage newProposal = proposals[proposalCount];</span>
+<span class="org-diff-indicator-added">+</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        uint256 proposalId = proposalCount;</span>
+<span class="org-diff-indicator-added">+</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        newProposal.proposer = msg.sender;</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        newProposal.eta = 0;</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        newProposal.targets = targets;</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        newProposal.values = values;</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        newProposal.signatures = signatures;</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        newProposal.calldatas = calldatas;</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        newProposal.startBlock = startBlock;</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        newProposal.endBlock = endBlock;</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        newProposal.forVotes = 0;</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        newProposal.againstVotes = 0;</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        newProposal.canceled = false;</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        newProposal.executed = false;</span>
+<span class="org-diff-indicator-added">+</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        latestProposalIds[newProposal.proposer] = proposalId;</span>
+<span class="org-diff-indicator-added">+</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        emit ProposalCreated(</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            proposalId,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            msg.sender,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            targets,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            values,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            signatures,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            calldatas,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            startBlock,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            endBlock,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            description</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        );</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        return proposalId;</span>
+     }
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org723d61c" class="outline-3">
+<h3 id="org723d61c">Radicle Token</h3>
+<div class="outline-text-3" id="text-org723d61c">
+<p>
+The Radicle Token contains the following substantive non-syntactical
+changes over the COMP token:
+</p>
+
+<ul class="org-ul">
+<li>solidity 0.5.16 -&gt; 0.7.5</li>
+<li>10 million -&gt; 100 million total supply</li>
+<li><code>burnFrom</code>, allowing the caller to burn tokens from an address, provided
+the caller has a sufficient allowance. This is semantically identical to
+<code>transferFrom(account, 0, rawAmount)</code>, except the balance of <code>address(0)</code>
+does not increase and <code>totalSupply</code> is decreased by <code>rawAmount</code>.</li>
+<li><code>permit</code> as specified in <a href="https://eips.ethereum.org/EIPS/eip-2612">EIP 2612</a>.
+This is semantically identical to current implementations of <code>permit</code> as
+found in Uniswap v2 tokens and in the UNI governance token.</li>
+</ul>
+
+<p>
+All constants remain the same, aside from the total supply.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-diff"><span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">pragma solidity ^0.5.16;</span>
++pragma solidity ^0.7.5;
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-diff"><span class="org-diff-context">     /// @notice Total number of tokens in circulation</span>
+<span class="org-diff-indicator-removed">-</span><span class="org-diff-removed">    uint public constant totalSupply = 10000000e18; // 10 million Comp</span>
++    uint256 public totalSupply = 100000000e18; // 100 million tokens
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-diff"><span class="org-diff-indicator-added">+</span><span class="org-diff-added">    /**</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">     * @notice Burn `rawAmount` tokens from `account`</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">     * @param account The address of the account to burn</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">     * @param rawAmount The number of tokens to burn</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">     */</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">    function burnFrom(address account, uint256 rawAmount) public {</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        require(account != address(0), "RadicleToken::burnFrom: cannot burn from the zero address");</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        uint96 amount = safe96(rawAmount, "RadicleToken::burnFrom: amount exceeds 96 bits");</span>
+<span class="org-diff-indicator-added">+</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        address spender = msg.sender;</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        uint96 spenderAllowance = allowances[account][spender];</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        if (spender != account &amp;&amp; spenderAllowance != uint96(-1)) {</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            uint96 newAllowance =</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">                sub96(</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">                    spenderAllowance,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">                    amount,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">                    "RadicleToken::burnFrom: burn amount exceeds allowance"</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">                );</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            allowances[account][spender] = newAllowance;</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            emit Approval(account, spender, newAllowance);</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        }</span>
+<span class="org-diff-indicator-added">+</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        balances[account] = sub96(</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            balances[account],</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            amount,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            "RadicleToken::burnFrom: burn amount exceeds balance"</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        );</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        emit Transfer(account, address(0), amount);</span>
+<span class="org-diff-indicator-added">+</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        _moveDelegates(delegates[account], address(0), amount);</span>
+<span class="org-diff-indicator-added">+</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        totalSupply -= rawAmount;</span>
++    }
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-diff"><span class="org-diff-indicator-added">+</span><span class="org-diff-added">    /**</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">     * @notice Approves spender to spend on behalf of owner.</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">     * @param owner The signer of the permit</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">     * @param spender The address to approve</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">     * @param deadline The time at which the signature expires</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">     * @param v The recovery byte of the signature</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">     * @param r Half of the ECDSA signature pair</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">     * @param s Half of the ECDSA signature pair</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">     */</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">    function permit(</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        address owner,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        address spender,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        uint256 value,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        uint256 deadline,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        uint8 v,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        bytes32 r,</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        bytes32 s</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">    ) public {</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        bytes32 structHash =</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            keccak256(</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">                abi.encode(PERMIT_TYPEHASH, owner, spender, value, nonces[owner]++, deadline)</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">            );</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR(), structHash));</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        require(owner == ecrecover(digest, v, r, s), "RadicleToken::permit: invalid signature");</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        require(owner != address(0), "RadicleToken::permit: invalid signature");</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        require(block.timestamp &lt;= deadline, "RadicleToken::permit: signature expired");</span>
+<span class="org-diff-indicator-added">+</span><span class="org-diff-added">        _approve(owner, spender, value);</span>
+     }
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga1eecb3" class="outline-2">
+<h2 id="orga1eecb3">Findings</h2>
+<div class="outline-text-2" id="text-orga1eecb3">
+<p>
+Our findings are separated into three sections:
+</p>
+
+<ul class="org-ul">
+<li><b><a href="#orga60623c">Bugs</a></b>: issues that impact the security or correctness of the system</li>
+<li><b><a href="#org5d35f2b">Improvements</a></b>: changes that could improve the clarity, functionality, or efficiency of the system, but that do not impact security or correctness</li>
+<li><b><a href="#orga341b4a">Notes and Miscellanea</a></b>: points of interest that do not merit an explicit recommendation for change</li>
+</ul>
+</div>
+
+<div id="outline-container-orga60623c" class="outline-3">
+<h3 id="orga60623c">Bugs</h3>
+<div class="outline-text-3" id="text-orga60623c">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left"><b>Finding</b></th>
+<th scope="col" class="org-left"><b>Severity</b></th>
+<th scope="col" class="org-left"><b>Likelihood</b></th>
+<th scope="col" class="org-left"><b>Addressed</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><a href="#org732654f">B01: VestingToken: <code>withdrawableBalance()</code> can revert after vesting is interrupted</a></td>
+<td class="org-left">Low</td>
+<td class="org-left">Medium</td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/02999d43e860ef34ddbd84eca7513d569afced68"><code>02999d4</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#org652f42c">B02: VestingToken: Misleading value for <code>withdrawn</code> variable after vesting is terminated</a></td>
+<td class="org-left">Low</td>
+<td class="org-left">Low</td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/7d0e5ec110b9ac0b0fd05bf5f6462304929530a7"><code>7d0e5ec</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#orgba2dd63">B03: Governor/Timelock: Multiple calls to the same contract cannot be performed within the same proposal</a></td>
+<td class="org-left">Medium</td>
+<td class="org-left">Low</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#org8b34cfc">B04: Registrar: <code>setDomainOwner</code> should not set <code>resolver</code> or <code>ttl</code> values for the domain</a></td>
+<td class="org-left">Low</td>
+<td class="org-left">High</td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3"><code>ba879bc</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#orgf077ff0">B05: Registrar: Revoked names cannot be re-registered</a></td>
+<td class="org-left">Low</td>
+<td class="org-left">Medium</td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3"><code>ba879bc</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#org64f5179">B06: Registrar: New names have no resolver</a></td>
+<td class="org-left">Low</td>
+<td class="org-left">High</td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3"><code>ba879bc</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#org50ed4b7">B07: Registrar: Name registration is vulnerable to frontrunning attacks</a></td>
+<td class="org-left">High</td>
+<td class="org-left">Medium</td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3"><code>ba879bc</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#org80bd459">B08: Registrar: Name registration log is missing preimage</a></td>
+<td class="org-left">Low</td>
+<td class="org-left">High</td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3"><code>ba879bc</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#org2effc13">B09: Add Events to stateful functions of Registrar, VestingToken and Treasury</a></td>
+<td class="org-left">Low</td>
+<td class="org-left">High</td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3"><code>ba879bc</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#orga412045">B10: Registrar: Implement protections against name squatting</a></td>
+<td class="org-left">Medium</td>
+<td class="org-left">High</td>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div id="outline-container-org732654f" class="outline-4">
+<h4 id="org732654f">B01: VestingToken: <code>withdrawableBalance()</code> can revert after vesting is interrupted</h4>
+<div class="outline-text-4" id="text-org732654f">
+<p>
+In <code>VestingToken.sol</code>, the <code>withdrawableBalance()</code> method will revert
+if vesting has been terminated, but the vesting period has not yet ended,
+due to a subtraction underflow at <a href="https://github.com/radicle-dev/radicle-contracts/blob/master/contracts/Governance/VestingToken.sol#L84">L84</a>.
+</p>
+
+<p>
+It is expected that <code>withdrawableBalance</code> should always return 0 after
+vesting has been terminated, which can be achieved by adding:
+</p>
+<div class="org-src-container">
+<pre class="src src-solidity">if (interrupted) return 0;
+</pre>
+</div>
+
+<p>
+to the beginning of <code>withdrawableBalance</code>, and moving
+</p>
+<div class="org-src-container">
+<pre class="src src-solidity">interrupted = true;
+</pre>
+</div>
+
+<p>
+to the bottom of <code>terminateVesting()</code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org652f42c" class="outline-4">
+<h4 id="org652f42c">B02: VestingToken: Misleading value for <code>withdrawn</code> variable after vesting is terminated</h4>
+<div class="outline-text-4" id="text-org652f42c">
+<p>
+After vesting is terminated, the <code>withdrawn</code> variable will always be equal to the
+total amount to be vested, regardless of whether the beneficiary received the
+full amount or if vesting was terminated prematurely.
+</p>
+
+<p>
+Instead of setting:
+</p>
+<div class="org-src-container">
+<pre class="src src-solidity">withdrawn = totalVestingAmount;
+</pre>
+</div>
+
+<p>
+setting
+</p>
+<div class="org-src-container">
+<pre class="src src-solidity">withdrawn = totalToBeVested;
+</pre>
+</div>
+
+<p>
+would more accurately reflect the token amount that the beneficiary has received.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgba2dd63" class="outline-4">
+<h4 id="orgba2dd63">B03: Governor/Timelock: Multiple calls to the same contract cannot be performed within the same proposal</h4>
+<div class="outline-text-4" id="text-orgba2dd63">
+<p>
+When a proposal passes, the Governor queues all the corresponding function calls in the Timelock,
+which allows them to be executed after the <code>Timelock.GRACE_PERIOD</code> has passed.
+</p>
+
+<p>
+In this process, the function calls are identified
+by <code>txHash = keccak256(abi.encode(target, value, signature, data, eta))</code>, and
+proposals which contain more multiple function calls with the same <code>txHash</code> cannot be queued
+or executed.
+</p>
+
+<p>
+This restriction limits the possible actions of Radicle Governance, as it makes it unable to
+perform certain stateful function calls. For example, if Governance needed to deploy multiple
+contracts from a factory in the same transaction, it would be unable to call
+<code>Factory.build()</code> multiple times within the same proposals.
+</p>
+
+<p>
+Allowing repeated function calls within the same proposals could easily be achieved,
+for example by adding <code>salt</code> or a <code>nonce</code> to transactions.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8b34cfc" class="outline-4">
+<h4 id="org8b34cfc">B04: Registrar: <code>setDomainOwner</code> should not set <code>resolver</code> or <code>ttl</code> values for the domain</h4>
+<div class="outline-text-4" id="text-org8b34cfc">
+<p>
+The <code>setDomainOwner</code> method in the Registrar makes a call to <code>setRecord</code> on the ENS
+registry, and passes in the address of the new owner as the new <code>resolver</code> value,
+and a value of 0 for the <code>ttl</code>.
+</p>
+
+<p>
+Setting the <code>resolver</code> and <code>ttl</code> values for the domain during an ownership change
+seems unnecessary, and could lead to disruption for downstream clients who rely
+on the resolver for the <code>radicle.eth</code> domain, especially as the <code>resolver</code> value is
+almost certainly incorrect.
+</p>
+
+<p>
+<code>setDomainOwner</code> should call <code>setOwner</code> on ens, and separate admin methods should be
+added in the Registrar that allow setting of the <code>resolver</code> and <code>ttl</code> values on the
+<code>radicle.eth</code> domain.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf077ff0" class="outline-4">
+<h4 id="orgf077ff0">B05: Registrar: Revoked names cannot be re-registered</h4>
+<div class="outline-text-4" id="text-orgf077ff0">
+<p>
+The new ENS registry implements a mechanism where lookups will fallback to the
+old registry if the <code>owner</code> field of a record is set to <code>address(0)</code>. This means
+that <code>address(0)</code> acts as a sentinel value indicating that the name does not have
+an owner in the new registry, but it may still have a record in the old
+registry. The new registry also makes use of an additional sentinel value: the
+address of the registry itself. This value has the meaning: "this name does
+not exist in the old registry and is controlled by <code>address(0)</code>".
+</p>
+
+<p>
+If users call <code>setOwner(node, address(0))</code> on the new registry, the owner field on
+the record will in set to the address of the registry itself, and when calling
+<code>owner(node)</code>, <code>address(0)</code> will be returned if the <code>owner</code> field has a value of
+<code>address(this)</code>.
+</p>
+
+<p>
+The radicle registrar uses a call to <code>ens.recordExists(node)</code> as part of
+<code>registerRad</code> to check if a domain has already been registered. <code>recordExists</code> does
+not take the above mechanism into account, and will return <code>false</code> iff the <code>owner</code>
+field has been set to <code>address(0)</code>. This means that if the owner of a radicle
+domain decides to revoke their ownership by calling <code>ens.setOwner(domain,
+address(0))</code> the domain owner will be set to <code>address(this)</code>, and
+<code>ens.recordExists(domain)</code> will always return <code>true</code> for that domain, meaning that
+it can never again be registered.
+</p>
+
+<p>
+This issue can be avoided by using a call to <code>ens.owner(domain)</code> (which accounts
+for the various internal sentinel values) instead of the call to <code>ens.recordExists</code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org64f5179" class="outline-4">
+<h4 id="org64f5179">B06: Registrar: New names have no resolver</h4>
+<div class="outline-text-4" id="text-org64f5179">
+<p>
+The radicle registrar does not set a value for the <code>resolver</code> field for newly
+registered subdomains. While this field can be set by owner subsequent to the
+name registration, it involves an extra transaction.
+</p>
+
+<p>
+Name registration UX could be improved by setting a sensible default for the
+<code>resolver</code> field in newly created <code>radicle.eth</code> subdomains (perhaps to the same value
+as used for <code>radicle.eth</code>).
+</p>
+</div>
+</div>
+
+<div id="outline-container-org50ed4b7" class="outline-4">
+<h4 id="org50ed4b7">B07: Registrar: Name registration is vulnerable to frontrunning attacks</h4>
+<div class="outline-text-4" id="text-org50ed4b7">
+<p>
+An attacker with a good view of the mempool could watch for transactions
+registering new <code>radicle.eth</code> subdomains and submit a transaction with a higher
+gas price claiming the name for themselves.
+</p>
+
+<p>
+While this attack has an up-front cost, they can now offer the name to the original
+submitter of the transaction for more than the cost of submitting the transaction.
+</p>
+
+<p>
+To avoid this issue, a commit/reveal scheme could be implemented:
+</p>
+
+<ol class="org-ol">
+<li>submit a commitment to register a domain (<code>commit(keccak256(name, owner, secret))</code>)</li>
+<li>submit a registration transaction within some predetermined time period (<code>register(name, owner, secret)</code>)</li>
+</ol>
+
+<p>
+An attacker who is watching the mempool cannot see which name/owner pairs are
+being committed to, and once the registration transaction is revealed, they are
+unable to take the name for themselves (they can of course still register the
+name on behalf of the <code>owner</code> specified in the commitment).
+</p>
+</div>
+</div>
+
+<div id="outline-container-org80bd459" class="outline-4">
+<h4 id="org80bd459">B08: Registrar: Name registration log is missing preimage</h4>
+<div class="outline-text-4" id="text-org80bd459">
+<p>
+The <code>NameRegistered</code> event contains the ens node associated with the registered
+name, but does not include the name itself. While the name can be recovered via
+calldata, this procedure is more complex and not supported by many popular tools
+(e.g. Dune Analytics).
+</p>
+
+<p>
+Adding the domain name to the <code>NameRegistered</code> even will make life easier for
+users of the radicle registrar.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org2effc13" class="outline-4">
+<h4 id="org2effc13">B09: Add Events to stateful functions of Registrar, VestingToken and Treasury</h4>
+<div class="outline-text-4" id="text-org2effc13">
+<p>
+Adding events makes it easier for interfaces and other tools to quickly analyze the
+state of contracts, and cheaply recreate its historical state.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orga412045" class="outline-4">
+<h4 id="orga412045">B10: Registrar: Implement protections against name squatting</h4>
+<div class="outline-text-4" id="text-orga412045">
+<p>
+Registering a name under <code>radicle.eth</code> may be quite cheap directly after the
+launch, and there is a risk that many high value names will be claimed by
+squatters.
+</p>
+
+<p>
+It may be prudent to investigate restrictions on the registration of very short
+names, or names of existing high profile software projects (e.g. the largest 100
+projects on github). The team may also wish to consider adding an expiry period
+to <code>radicle.eth</code> subdomains.
+</p>
+
+<p>
+The radicle team updated the registrar to disallow registration of names that
+are represented with a single byte when serialzed. This dissalows registration
+of single character ascii names (e.g. <code>x.radicle.eth</code>), but still allows the
+registration of single character names that have multi-byte representations when
+serialized (e.g. emojis, chinese characters).
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org5d35f2b" class="outline-3">
+<h3 id="org5d35f2b">Improvements</h3>
+<div class="outline-text-3" id="text-org5d35f2b">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left"><b>Recommendation</b></th>
+<th scope="col" class="org-left"><b>Implemented</b></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><a href="#org868e7f4">Use <code>calldata</code> as function variable locations wherever possible</a></td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/f63ee5c7a05cbc4976864ebc953303396a14978b"><code>f63ee5c</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#orgd2ee89d">Allow the ENS resolver and ttl to be set by the admin of the Registrar</a></td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3"><code>ba879bc</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#org969b9b4">Deprecate Treasury in favor of Timelock</a></td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/544601aa4c5518db711f1457bd021dca77901e47"><code>544601a</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#org2f26833">Remove id from Proposal struct</a></td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/6dca55be29bdfcb41e903972e1d8f4a892d69337"><code>6dca55b</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#orgc725dcb">Rearrange Proposal struct members for more efficient packing</a></td>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#org0e5df1e">Governor: fix error message in `propose`</a></td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/f1330e7ffc8635df771bba7d0a504f2f76784f45"><code>f1330e7</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#org7aa5d78">Remove or loosen restriction on name length</a></td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/a1cc6fd244b2ee8b2107b06dacdccd89f9940cde"><code>a1cc6fd</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#orgff5b847">Add permit to RadicleToken</a></td>
+<td class="org-left"><a href="https://github.com/radicle-dev/radicle-contracts/commit/ba879bc9b84160d543ff71e337bc54dab41371a3"><code>ba879bc</code></a></td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#orgb3524cb">Use immutable for Governor.token and Governor.timelock</a></td>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><a href="#org484d91b">Incentivize relaying of <code>register</code> transactions in the Registrar</a></td>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+<div id="outline-container-org868e7f4" class="outline-4">
+<h4 id="org868e7f4">Use <code>calldata</code> as function variable locations wherever possible</h4>
+<div class="outline-text-4" id="text-org868e7f4">
+<p>
+Using <code>calldata</code> as location for reference data types in the following functions:
+</p>
+<ul class="org-ul">
+<li>Timelock.queueTransaction</li>
+<li>Timelock.cancelTransaction</li>
+<li>Timelock.executeTransaction</li>
+</ul>
+
+<p>
+would improve gas efficiency in the Timelock contract.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgd2ee89d" class="outline-4">
+<h4 id="orgd2ee89d">Allow the ENS resolver and ttl to be set by the admin of the Registrar</h4>
+<div class="outline-text-4" id="text-orgd2ee89d">
+<p>
+The <code>Registrar</code> does not allow the <code>admin</code> to set a new <code>resolver</code> or <code>ttl</code> value for
+the <code>radicle.eth</code> domain. While this can be achieved by means of a registrar
+upgrade, this seems unnecessarily restrictive.
+</p>
+
+<p>
+The audit team recommends adding methods that allow the registrar <code>admin</code> to set
+the <code>resolver</code> and <code>ttl</code> values for the <code>radicle.eth</code> domain.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org969b9b4" class="outline-4">
+<h4 id="org969b9b4">Deprecate Treasury in favor of Timelock</h4>
+<div class="outline-text-4" id="text-org969b9b4">
+<p>
+The <code>Treasury</code> contract is a simple contract wallet that holds ETH, only allowing
+the admin to withdraw the funds.  Discussions with the Radicle team revealed
+that this treasury contract was meant to be controlled by Governance, and could
+also come to hold ERC20 tokens. Since the Timelock contract is already well
+equipped to both hold ETH and other assets in behalf of the Governance contract,
+the audit team recommends getting rid of the Treasury completely and just using
+the Timelock as a treasury instead.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org9adf897" class="outline-4">
+<h4 id="org9adf897">Remove unused features from the Registrar</h4>
+<div class="outline-text-4" id="text-org9adf897">
+<p>
+The registrar currently contains placeholder methods relating to currently
+unimplemented flows that would allow users to register a domain using an amount
+of ETH determined by an external price oracle.
+</p>
+
+<p>
+Removing these methods (and their associated storage variables) would make the
+contract both easier to read and cheaper to deploy.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org2f26833" class="outline-4">
+<h4 id="org2f26833">Remove id from Proposal struct</h4>
+<div class="outline-text-4" id="text-org2f26833">
+<p>
+The <code>id</code> field of the proposal struct is redundant. Proposals are indexed by their id,
+so any lookup would have to already be aware of the id of the proposal.
+Removing this should save at least 1 SSTORE per proposal.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgc725dcb" class="outline-4">
+<h4 id="orgc725dcb">Rearrange Proposal struct members for more efficient packing</h4>
+<div class="outline-text-4" id="text-orgc725dcb">
+<p>
+Solidity packs adjacent value types occupying less than 32 bytes into a single
+slot whenever possible. In the case of the Proposal struct, there are several
+items that could be packed together if moved next to each other. The audit team
+suggests moving the proposer <code>address</code> next to the booleans in order to fit them in
+to a single storage slot.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org0e5df1e" class="outline-4">
+<h4 id="org0e5df1e">Governor: fix error message in `propose`</h4>
+<div class="outline-text-4" id="text-org0e5df1e">
+<p>
+The function <code>Governor.propose</code> requires the sender to hold more
+than <code>Governor.proposalThreshold()</code> votes in order to submit a proposal.
+However, the error message accompanying this constraint reads:
+"Governor::propose: proposer votes below proposal threshold", which is not
+true if the proposer has exactly <code>proposalThreshold</code> number of votes.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7aa5d78" class="outline-4">
+<h4 id="org7aa5d78">Remove or loosen restriction on name length</h4>
+<div class="outline-text-4" id="text-org7aa5d78">
+<p>
+Names are restricted to be less than 32 bytes in length. As names in ENS are
+stored in a dictionary keyed by the <a href="https://docs.ens.domains/contract-api-reference/name-processing#hashing-names">namehash</a> of the domain (a <code>bytes32</code>), this
+restriction is not required on the smart contract level.
+</p>
+
+<p>
+UTF-8 encoded unicode characters have a maximum size of 4 bytes, meaning that
+the 32 bytes length restriction could result in an 8 character limit for some
+names.
+</p>
+
+<p>
+The audit team recommends either loosening or lifting this restriction entirely.
+</p>
+
+<p>
+Removing this check would save ~110 gas (~$0.15 @100 gwei/gas and 1400 USD/ETH)
+for every name registration.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgff5b847" class="outline-4">
+<h4 id="orgff5b847">Add permit to RadicleToken</h4>
+<div class="outline-text-4" id="text-orgff5b847">
+<p>
+Implementing <a href="https://eips.ethereum.org/EIPS/eip-2612"><code>permit</code></a> into the RadicleToken would allow introduce less friction
+for interactions with the RadicleToken, and pave the way for a user experience
+wherein the user needs no eth to pay for transactions.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb3524cb" class="outline-4">
+<h4 id="orgb3524cb">Use immutable for Governor.token and Governor.timelock</h4>
+<div class="outline-text-4" id="text-orgb3524cb">
+<p>
+The values of the variables <code>token</code> and <code>timelock</code> cannot be altered after
+set in the constructor. Using <code>immutable</code> for these variables would provide
+an increase in gas efficiency.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org484d91b" class="outline-4">
+<h4 id="org484d91b">Incentivize relaying of <code>register</code> transactions in the Registrar</h4>
+<div class="outline-text-4" id="text-org484d91b">
+<p>
+The current signature based name registration flows in the radicle registrar do
+not offer any incentive to the relayer of a <code>register</code> transaction. This could be
+rectified by adding a <code>registerWithFee</code> method that pays the relayer of the call a
+fee upon successful name registration.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3679ab3" class="outline-4">
+<h4 id="org3679ab3">Give <code>admin</code> control over the eth registrar address in the Registrar</h4>
+<div class="outline-text-4" id="text-org3679ab3">
+<p>
+The address for the <code>.eth</code> registrar is read from the ens registry in
+<code>setDomainOwner</code>. It is assumed that the owner of the <code>.eth</code> tld in the ens registry
+will always be the <code>.eth</code> registrar. Should the <code>owner</code> of the <code>.eth</code> tld change to be
+a contract that reverts during the call to <code>ethRegistrar.transferFrom</code> then it
+will no longer be possible to migrate to a new registrar for the <code>radicle.eth</code>
+name.
+</p>
+
+<p>
+The audit team recommends removing this assumption by reading the address of the
+<code>.eth</code> registrar from a storage variable in the radicle registrar. The <code>admin</code> of
+the registrar should be able to set the value of this storage variable.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga341b4a" class="outline-3">
+<h3 id="orga341b4a">Notes and Miscellanea</h3>
+<div class="outline-text-3" id="text-orga341b4a">
+</div>
+<div id="outline-container-org4637ee2" class="outline-4">
+<h4 id="org4637ee2">Address precalculation required for <code>VestingToken</code></h4>
+<div class="outline-text-4" id="text-org4637ee2">
+<p>
+Since the vestingtoken contract performs a transferFrom
+in its constructor, one has to precalculate its address and approve
+it before it is constructed.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb298ece" class="outline-4">
+<h4 id="orgb298ece">ENS multisig can takeover all <code>radicle.eth</code> names</h4>
+<div class="outline-text-4" id="text-orgb298ece">
+<p>
+The ENS root node is under the control of the <a href="https://etherscan.io/address/0xcf60916b6cb4753f58533808fa610fcbd4098ec0">ens multisig</a>. The owner of the
+root node can change change ownership of any subnode in the tree, giving the
+signers for this multisig total control over all ens domains.
+</p>
+
+<p>
+Should this multisig be compromised, ownership of all <code>radicle.eth</code> domains could
+fall into the hands of a malicious attacker.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org43c8f2f" class="outline-4">
+<h4 id="org43c8f2f">Name registration can expose sensitive financial details</h4>
+<div class="outline-text-4" id="text-org43c8f2f">
+<p>
+Registration of a <code>radicle.eth</code> subdomain creates an irrevocable link between an
+ethereum address and a human readable identifier. Users of the system should be
+aware that this allows anyone who knows the radicle name to view the full
+history of all transactions carried out by that address. Further heuristic
+analysis may also allow the linking of connected addresses to that name.
+</p>
+
+<p>
+It should be considered a best practice to register a radicle domain with a
+fresh address that is unconnected to other on chain activities.
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org9ca605b" class="outline-2">
+<h2 id="org9ca605b">Appendix A. Bug Classifications</h2>
+<div class="outline-text-2" id="text-org9ca605b">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left"><b>Severity</b></th>
+<th scope="col" class="org-left">&#xa0;</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><i>informational</i></td>
+<td class="org-left">The issue does not have direct implications for functionality, but could be relevant for understanding.</td>
+</tr>
+
+<tr>
+<td class="org-left"><i>low</i></td>
+<td class="org-left">The issue has no security implications, but could affect some behaviour in an unexpected way.</td>
+</tr>
+
+<tr>
+<td class="org-left"><i>medium</i></td>
+<td class="org-left">The issue affects some functionality, but does not result in economically significant loss of user funds.</td>
+</tr>
+
+<tr>
+<td class="org-left"><i>high</i></td>
+<td class="org-left">The issue can cause loss of user funds.</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><b>Likelihood</b></td>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="org-left"><i>low</i></td>
+<td class="org-left">The system is unlikely to be in a state where the bug would occur or could be made to occur by any party.</td>
+</tr>
+
+<tr>
+<td class="org-left"><i>medium</i></td>
+<td class="org-left">It is fairly likely that the issue could occur or be made to occur by some party.</td>
+</tr>
+
+<tr>
+<td class="org-left"><i>high</i></td>
+<td class="org-left">It is very likely that the issue could occur or could be exploited by some parties.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-org8678aae" class="outline-2">
+<h2 id="org8678aae">Appendix B. Prior Audit Report Comparisons</h2>
+<div class="outline-text-2" id="text-org8678aae">
+<p>
+The team is aware of two public audit reports conducted for the Compound
+Governance system <a href="https://github.com/trailofbits/publications/blob/master/reviews/compound-governance.pdf">1</a> <a href="https://blog.openzeppelin.com/compound-alpha-governance-system-audit/">2</a> conducted by Trail of Bits and Open Zeppelin
+respectively. The Radicle governance contracts are based on the Compound
+Governance contracts. Here we are cherry picking some recommendations that have
+not yet been addressed.
+</p>
+
+<ul class="org-ul">
+<li>Clean up return statements in RadicleToken: the <code>_delegate</code> function does not
+return any value. Both <code>delegate</code> and <code>delegateBySig</code> attempt to return the result
+of <code>_delegate</code> function.</li>
+
+<li>Document the variability in voting period length. Consider the historical
+range of block times and whether it will allow for an acceptable voting
+period. Consider adding logic in the Governor contract so the voting period
+time may be adjusted via governance proposals, or consider comparing block
+timestamps instead of block numbers to create a fixed-length voting period.</li>
+</ul>
+
+<script src="https://cdn.jsdelivr.net/npm/anchor-js/anchor.min.js"></script>
+<script> anchors.add(); </script>
+</div>
+</div>
+<div id="outline-container-org1d037fa" class="outline-2">
+<h2 id="org1d037fa">Appendix C. Contract Map</h2>
+<div class="outline-text-2" id="text-org1d037fa">
+<img src=./resources/governance.png />
+<img src=./resources/registrar.png />
+</div>
+</div>
+</div>
+</body>
+</html>
